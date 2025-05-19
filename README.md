@@ -38,3 +38,23 @@ let (mut ws_stream, _) = ClientBuilder::from_uri(Uri::from_static("ws://127.0.0.
 connects to the server using the WebSocket protocol.
 
 Both sides use the WebSocket protocol for communication, ensuring compatibility and real-time, bidirectional messaging.
+
+# experiment 2.3
+![alt text](image-1.png)
+
+Modify server.rs:
+
+In the main function, change the new connection log message to println!("New connection from Joseph's Computer{addr}");.
+In the handle_connection function:
+Send a welcome message ("Welcome to chat! Type a message") directly to the newly connected client when the connection is established. This message is not broadcast to other clients.
+When a message is received from a client:
+Log this incoming message to the server's console in the format From client {addr} "{text}".
+Change the format of the message to be broadcast. Instead of "[Client {addr}]: {text}", it will be {addr}: {text}. This is what other clients will receive and then format further.
+
+Modify client.rs:
+
+When a message is received from the server, prepend the string "Joseph's Computer - From server: " before printing it to the console. This applies to both the welcome message and subsequent chat messages.
+
+This will result in the client displaying messages like: Joseph's Computer - From server: Welcome to chat! Type a message Joseph's Computer - From server: 127.0.0.1:XXXXX: hi
+
+And the server logging: listening on port 8080 New connection from Joseph's Computer127.0.0.1:XXXXX From client 127.0.0.1:XXXXX "hi"

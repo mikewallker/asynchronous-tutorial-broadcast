@@ -14,6 +14,12 @@ async fn handle_connection(
     // Subscribe to the broadcast channel
     let mut bcast_rx = bcast_tx.subscribe();
 
+    // Send a welcome message to the newly connected client
+    if ws_stream.send(Message::text("Welcome to chat! Type a message".to_string())).await.is_err() {
+        // Error sending welcome message, client might have disconnected
+        return Ok(());
+    }
+
     loop {
         tokio::select! {
             // Receive a message from the websocket client
@@ -22,9 +28,11 @@ async fn handle_connection(
                     Some(Ok(msg)) => {
                         if msg.is_text() {
                             let text = msg.as_text().unwrap_or_default().to_string();
-                            // Broadcast the message to all clients
-                            let msg = format!("{addr}: {text}");
-                            let _ = bcast_tx.send(msg);
+                            // Log received message on server
+                            println!("From client {} \"{}\"", addr, text);
+                            // Format message for broadcasting
+                            let msg_to_broadcast = format!("{addr}: {text}");
+                            let _ = bcast_tx.send(msg_to_broadcast);
                         } else if msg.is_close() {
                             // Client disconnected
                             break;
@@ -62,7 +70,8 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
 
     loop {
         let (socket, addr) = listener.accept().await?;
-        println!("New connection from {addr:?}");
+        // Updated new connection log
+        println!("New connection from Joseph's Computer{addr}");
         let bcast_tx = bcast_tx.clone();
         tokio::spawn(async move {
             // Wrap the raw TCP stream into a websocket.

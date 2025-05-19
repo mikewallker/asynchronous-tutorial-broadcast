@@ -38,7 +38,8 @@ async fn main() -> Result<(), tokio_websockets::Error> {
                 match msg {
                     Some(Ok(msg)) => {
                         if let Some(text) = msg.as_text() {
-                            println!("{text}");
+                            // Prepended "Joseph's Computer - From server: " to the received text
+                            println!("Joseph's Computer - From server: {text}");
                         }
                     }
                     Some(Ok(msg)) if msg.is_close() => {
